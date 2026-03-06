@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from pydantic import BaseModel
 import joblib
@@ -19,6 +20,13 @@ model_path = find_model()
 bundle = joblib.load(model_path)
 vectorizer = bundle["vectorizer"]
 model = bundle["model"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # hackathon/demo setting
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Message(BaseModel):
     message: str
