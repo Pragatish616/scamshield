@@ -1,2 +1,0 @@
-# scamshield
-thinkathon project
