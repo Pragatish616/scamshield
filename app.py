@@ -37,7 +37,7 @@ app = FastAPI(
         "Returns prediction, probabilities, scam_score (0-100), "
         "risk level, and recommended action."
     ),
-    version="2.1.0",
+    version="2.2.0",
 )
 
 # Allow your deployed frontend origins; fall back to permissive for dev
@@ -88,6 +88,19 @@ _SCAM_PATTERNS = [
     (re.compile(r"\bwin\b.*\b(car|cash|prize|phone|iphone)\b", re.I), 0.40),
     (re.compile(r"\blimited\s*period\s*offer\b", re.I), 0.25),
     (re.compile(r"\bshop\s*now\b", re.I), 0.15),
+
+    # Premium-rate / adult chatline spam (common in older/Western SMS spam
+    # corpora; absent from the original Indian-scam-only training set)
+    (re.compile(r"\b(sex|sexy|horny|naked|nude|cock|porn|filthy|lapdancer)\b", re.I), 0.45),
+    (re.compile(r"\btext\b.*\b\d{4,6}\b.*\b(cost|charged|p ?p ?m|per\s*min)", re.I), 0.35),
+    (re.compile(r"\b\d{2,4}p\s*/?\s*min\b", re.I), 0.30),
+    (re.compile(r"\b(18\+|adult\s*content|premium\s*rate)\b", re.I), 0.30),
+    (re.compile(r"\bring(tone)?\b.*\b(subscri|charged|weekly)\b", re.I), 0.25),
+    (re.compile(r"\bmin(imum)?\s*term\b", re.I), 0.20),
+    (re.compile(r"\bunsubscribe\b", re.I), 0.15),
+    (re.compile(r"\btxt\s+\w+\s+to\s+\d{4,6}\b", re.I), 0.30),
+    (re.compile(r"\bcall\s*now\b.*\b(cost|p/min|pm)\b", re.I), 0.30),
+    (re.compile(r"\bchat\s*(now|line)\b", re.I), 0.30),
 ]
 
 # Patterns that strongly indicate ham — suppress false positives
@@ -318,7 +331,7 @@ class ModelInfoResponse(BaseModel):
 def home():
     return {
         "service": "ScamShield API",
-        "version": "2.1.0",
+        "version": "2.2.0",
         "model": "XGBoost + TF-IDF + Heuristic Booster",
         "status": "running" if MODEL else "model not loaded",
         "docs": "/docs",
@@ -386,10 +399,11 @@ def predict_batch(data: BatchRequest):
 def model_info():
     return ModelInfoResponse(
         model_type="XGBoost + TF-IDF + Heuristic Booster",
-        api_version="2.1.0",
+        api_version="2.2.0",
         features=(
-            "TF-IDF unigrams + bigrams (max_features=10000, sublinear_tf=True), "
-            "plus regex-based heuristic booster for common Indian scam patterns"
+            "TF-IDF unigrams + bigrams (max_features=10000, sublinear_tf=True) "
+            "trained on 5,658 messages, plus regex-based heuristic booster "
+            "covering Indian scam patterns and premium-rate/chatline spam"
         ),
         scam_score_info=(
             "scam_score = blended(model_prob, heuristic) × 100. "
