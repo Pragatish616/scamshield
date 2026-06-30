@@ -82,6 +82,12 @@ _SCAM_PATTERNS = [
     (re.compile(r"\b(send|share)\s+(your|ur)\s+(details?|info|otp|pin)\b", re.I), 0.35),
     (re.compile(r"\b(compromised|hacked|unauthorized|suspicious\s+activity)\b", re.I), 0.30),
     (re.compile(r"\bfree\b.*\b(gift|offer|prize|reward)\b", re.I), 0.30),
+    (re.compile(r"\bloan\b.*\b(approved|apply\s*now)\b", re.I), 0.30),
+    (re.compile(r"\b(flat|upto|up\s*to)\s*\d{2,3}%\s*off\b", re.I), 0.30),
+    (re.compile(r"\bshare\b.*\bwith\b.*\bfriends\b", re.I), 0.30),
+    (re.compile(r"\bwin\b.*\b(car|cash|prize|phone|iphone)\b", re.I), 0.40),
+    (re.compile(r"\blimited\s*period\s*offer\b", re.I), 0.25),
+    (re.compile(r"\bshop\s*now\b", re.I), 0.15),
 ]
 
 # Patterns that strongly indicate ham — suppress false positives
@@ -91,6 +97,8 @@ _HAM_PATTERNS = [
     (re.compile(r"\border\s+#?\w+\s+(has\s+been\s+)?(shipped|delivered|dispatched)\b", re.I), -0.25),
     (re.compile(r"\b(debited|credited)\s+from\s+a/c\b", re.I), -0.25),
     (re.compile(r"\bavl\.?\s*bal", re.I), -0.20),
+    (re.compile(r"\bbill\b.*\bdue\b.*\bofficial\s+app\b", re.I), -0.20),
+    (re.compile(r"\binterview\b", re.I), -0.15),
 ]
 
 
